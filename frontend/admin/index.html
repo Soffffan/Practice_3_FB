@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Панель администратора</title>
+</head>
+<body>
+    <h1>Панель администратора</h1>
+    <div>
+        <h2>Добавить товар</h2>
+        <form id="addProductForm">
+            <input type="text" id="name" placeholder="Название" required>
+            <input type="text" id="price" placeholder="Стоимость" required>
+            <input type="text" id="description" placeholder="Описание" required>
+            <button type="submit">Добавить</button>
+        </form>
+    </div>
+    <div>
+        <h2>Редактировать товар</h2>
+        <form id="editProductForm">
+            <input type="text" id="editId" placeholder="ID товара" required>
+            <input type="text" id="editName" placeholder="Название" required>
+            <input type="text" id="editPrice" placeholder="Стоимость" required>
+            <input type="text" id="editDescription" placeholder="Описание" required>
+            <button type="submit">Редактировать</button>
+        </form>
+    </div>
+    <div>
+        <h2>Удалить товар</h2>
+        <form id="deleteProductForm">
+            <input type="text" id="deleteId" placeholder="ID товара" required>
+            <button type="submit">Удалить</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('addProductForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const product = {
+                id: Date.now().toString(),
+                name: document.getElementById('name').value,
+                price: document.getElementById('price').value,
+                description: document.getElementById('description').value
+            };
+            fetch('http://localhost:8080/api/products', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify([product])
+            }).then(response => response.text())
+              .then(data => alert(data));
+        });
+
+        document.getElementById('editProductForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const product = {
+                id: document.getElementById('editId').value,
+                name: document.getElementById('editName').value,
+                price: document.getElementById('editPrice').value,
+                description: document.getElementById('editDescription').value
+            };
+            fetch(`http://localhost:8080/api/products/${product.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(product)
+            }).then(response => response.text())
+              .then(data => alert(data));
+        });
+
+        document.getElementById('deleteProductForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const id = document.getElementById('deleteId').value;
+            fetch(`http://localhost:8080/api/products/${id}`, {
+                method: 'DELETE'
+            }).then(response => response.text())
+              .then(data => alert(data));
+        });
+    </script>
+</body>
+</html>
