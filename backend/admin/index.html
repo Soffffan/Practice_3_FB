@@ -12,6 +12,7 @@
             <input type="text" id="name" placeholder="Название" required>
             <input type="text" id="price" placeholder="Стоимость" required>
             <input type="text" id="description" placeholder="Описание" required>
+            <input type="text" id="categories" placeholder="Категории (через запятую)" required>
             <button type="submit">Добавить</button>
         </form>
     </div>
@@ -22,6 +23,7 @@
             <input type="text" id="editName" placeholder="Название" required>
             <input type="text" id="editPrice" placeholder="Стоимость" required>
             <input type="text" id="editDescription" placeholder="Описание" required>
+            <input type="text" id="editCategories" placeholder="Категории (через запятую)" required>
             <button type="submit">Редактировать</button>
         </form>
     </div>
@@ -32,33 +34,65 @@
             <button type="submit">Удалить</button>
         </form>
     </div>
+    <div id="products"></div>
 
     <script>
+        // Функция для отображения товаров
+        function displayProducts(products) {
+            const productsDiv = document.getElementById('products');
+            productsDiv.innerHTML = ''; // Очищаем предыдущие товары
+            products.forEach(product => {
+                const productDiv = document.createElement('div');
+                productDiv.innerHTML = `
+                    <h2>${product.name}</h2>
+                    <p>ID: ${product.id}</p>
+                    <p>Цена: ${product.price}</p>
+                    <p>${product.description}</p>
+                    <p>Категории: ${product.categories.join(', ')}</p>
+                `;
+                productsDiv.appendChild(productDiv);
+            });
+        }
+
+        // Загрузка и отображение товаров
+        fetch('/api/products')
+            .then(response => response.json())
+            .then(displayProducts);
+
+        // Добавление товара
         document.getElementById('addProductForm').addEventListener('submit', function(event) {
             event.preventDefault();
             const product = {
-                id: Date.now().toString(),
                 name: document.getElementById('name').value,
                 price: document.getElementById('price').value,
-                description: document.getElementById('description').value
+                description: document.getElementById('description').value,
+                categories: document.getElementById('categories').value.split(',').map(category => category.trim())
             };
             fetch('http://localhost:8080/api/products', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify([product])
+                body: JSON.stringify(product)
             }).then(response => response.text())
-              .then(data => alert(data));
+              .then(data => {
+                  alert(data);
+                  // Обновление списка товаров после добавления
+                  fetch('/api/products')
+                      .then(response => response.json())
+                      .then(displayProducts);
+              });
         });
 
+        // Редактирование товара
         document.getElementById('editProductForm').addEventListener('submit', function(event) {
             event.preventDefault();
             const product = {
                 id: document.getElementById('editId').value,
                 name: document.getElementById('editName').value,
                 price: document.getElementById('editPrice').value,
-                description: document.getElementById('editDescription').value
+                description: document.getElementById('editDescription').value,
+                categories: document.getElementById('editCategories').value.split(',').map(category => category.trim())
             };
             fetch(`http://localhost:8080/api/products/${product.id}`, {
                 method: 'PUT',
@@ -67,16 +101,29 @@
                 },
                 body: JSON.stringify(product)
             }).then(response => response.text())
-              .then(data => alert(data));
+              .then(data => {
+                  alert(data);
+                  // Обновление списка товаров после редактирования
+                  fetch('/api/products')
+                      .then(response => response.json())
+                      .then(displayProducts);
+              });
         });
 
+        // Удаление товара
         document.getElementById('deleteProductForm').addEventListener('submit', function(event) {
             event.preventDefault();
             const id = document.getElementById('deleteId').value;
             fetch(`http://localhost:8080/api/products/${id}`, {
                 method: 'DELETE'
             }).then(response => response.text())
-              .then(data => alert(data));
+              .then(data => {
+                  alert(data);
+                  // Обновление списка товаров после удаления
+                  fetch('/api/products')
+                      .then(response => response.json())
+                      .then(displayProducts);
+              });
         });
     </script>
 </body>

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Магазин</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <h1>Каталог товаров</h1>
@@ -15,10 +16,12 @@
                 const productsDiv = document.getElementById('products');
                 products.forEach(product => {
                     const productDiv = document.createElement('div');
+                    productDiv.className = 'product';
                     productDiv.innerHTML = `
                         <h2>${product.name}</h2>
-                        <p>${product.price}</p>
+                        <p>Цена: ${product.price}</p>
                         <p>${product.description}</p>
+                        <p>Категории: ${product.categories.join(', ')}</p>
                     `;
                     productsDiv.appendChild(productDiv);
                 });
